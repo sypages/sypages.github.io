@@ -1,0 +1,136 @@
+---
+title: "Final Project"
+author: "Sylvia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## What is data science?
+
+I'm new to this. Four months ago, I would have said data science was about creating/maintaining/optimizing/storing databases and data retrieval. Thankfully, after a completing an introductory data science course, I'm better informed now. While these tasks are data focused, they tend to be in the domain of a database administrator. A data scientist, on the other hand, would gather and transform that data -- with the ultimate goal of extracting useful information to guide future decision making processes. 
+
+For those just beginning their exploration of data science, I'd like to share a quick walk through of how to get started with a small project example. We'll skip through a lot of the how's of coding this project, but, where detailed or supplemental knowledge is needed to perform certain tasks, suggested resources are given.  
+
+## Tools
+
+First, it would be helpful if we are using the same tools. R, Python, and SQL are some of the more popular programs used in the data science and machine learning community. This tutorial will use R.
+
+R is a free software environment for statistical computing and graphics and available at  https://www.r-project.org. 
+
+Please read their guidelines on system requirements and instructions for downloading and installing on your computer.
+
+We also want to download and use RStudio as our integrated design environment to make it easier to edit and run R code as well as have access to additional functionality. These extras are obtained by loading R packages. For information on R packages go to https://rstudio.com/products/rpackages/
+
+Download RStudio from https://rstudio.com/products/rstudio/download/ and follow their install instructions. This video might be helpful https://www.youtube.com/watch?v=mcYcjH-1giM
+
+Opening RStudio for the first time, it may just display a three paned window instead of a four paned window. 
+
+![Three panes showing in RStudio.](3panes.png)
+
+If the fourth pane is not diplaying, open an additional pane from the menu options File>New File>R Script. That opens a new editor pane on the left top. 
+
+![Four panes showing in RStudio.](4panes.png)
+
+The top left pane will be our main work space, where we can create multiple lines of code and save it for later use. The bottom left is the console where code can be run one at time. The environment/history pane is in the top right and files/plots are displayed in the bottom right pane. 
+
+Learning the syntax for R will take a bit of research (stackoverflow.com is a good place to find R related answers).
+
+For example, if we want to assign a value 1 to the expression a, in the editor pane we would type 
+  a <- 1
+to display the value of a, we would type 
+  a
+  
+There are numerous ways to run your code in the editor pane. Here's three...
+- the editor pane has a list of menu options at the top of the pane, select run
+- RStudio's main menu has run options in the code menu option
+- the shortcut is what I tend to us, on a mac to run all code, command + shift + return. To run just one line of code, command + return
+
+![In the editor, assign a value to a.](1stcode.png)
+
+RStudio sends the run code to the console pane and executes it. the results of the code is displayed in the console, with the exception of plots/graphs. Functions to create plots and graphs are display their results in the bottom right pane instead of the console.
+
+![Results in the console.](1stcoderesults.png)
+If you wanted to, the code could be entered directly in the console pane and run line by line. It's just harder to edit and save your code.
+
+When working on a project, it's best to set up a directory to work from on your system and  identifying it in RStudio.
+
+to display your current working directory, type...
+	getwd()
+
+to change your working directory, type ...
+	setwd("~/mydirectory/project1")
+
+Check out stackoverflow.com for helpful advice/answers on R.
+
+Coming back to the additional functionality that you can add to R, R Packages I've found helpful are tidyverse (which includes ggplot2, dplyr, tidyr, purr, readr, and tibble amongst others).
+
+It's a two step process to add additional functionality to R, install and load packages.
+- in the console pane, type 
+	install.packages("tidyverse").
+- in the console pane, to load the installed package type
+	library(tidyverse)
+
+Because tidyverse is bundled with other packages, when we install tidyverse the other bundled packages are also installed. The catch is that the some of the other installed packages will need to be specifically loaded. At some point during the class I've used rvest, lubridate, magrittr, readxl, stringr, purrr, dplyr, ggplot2 and readr. 
+
+Once a particular package is installed on your computer, it does not need to be installed again. Loading, on the other hand, will need to be done again (for example run library(tidyverse)) when a new project is started or RStudio is closed and reopened.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+## US National Debt
+
+Data can be obtained from websites as downloadable data files in various formats such as csv, json, and exe.
+
+We could grab data from https://treasurydirect.gov/govt/reports/pd/histdebt/histdebt_histo5.htm
+
+cut and paste into excel or pages, save as an xlsx file
+Before reading the excel file into RStudio, we need to load and activate the "readxl" package.
+
+Possible places to get open source data are kaggle.com, and world.data.
+
+```{r data_excel}
+library(readxl)
+debtDf <- read_excel("usDebt.xlsx")
+head(debtDf)
+```
+
+Here we'll look at public data from 
+https://fred.stlouisfed.org/series/GFDEBTN#0
+Downloaded to our computer, with annual public debt numbers from 1969 to 2019, in millions of dollars.
+```{r data}
+
+debtDf <- read_csv("GFDEBTN.csv")
+head(debtDf)
+```
+
+
+Create a graph for the numbers
+```{r graph}
+debtDf %>%   
+  ggplot(aes(x=DATE, y=GFDEBTN)) +
+    geom_line() +
+    labs(x = "Year",
+         y = "Debt in millions", title="US Public Debt from 1969 - 2019")
+```
+
+We'll change the column names
+
+```{r rename}
+debtDf<-rename(debtDf, date = DATE, debt = GFDEBTN )
+debtDf
+```
+
+And re-display the graph in billions.
+
+```{r new_graph}
+debtDf %>%   
+  ggplot(aes(x=date, y=debt/1000)) +
+    geom_line() +
+    labs(x = "Year",
+         y = "Debt in billions", title="US Public Debt from 1969 - 2019")
+```
+
+Now we need to grab the congressional data.
