@@ -189,12 +189,24 @@ Now this is showing an interesting pattern. The percent change is pretty steady 
 
 Spikes:
 1981, when a republican president came into power.
-1993, when a democrat came in
-2001, when a republican came in
-2009,  when a democrat came in
-2017, when a republican came in
 
-This could be related to the fact that when a new president is elected, they move into the White House in Jan, but the budget for the coming nine months is already "approved" (sometimes there is a delay) by the previous president.
+1993, when a democrat came in.
 
-This is just speculation, but we've got some interesting trends in our data, that justifies further investigation.
+2001, when a republican came in.
 
+2009,  when a democrat came in.
+
+2017, when a republican came in.
+
+This could be related to the fact that when a new president is elected, they move into the White House in Jan, but the budget for the next nine months is already set (sometimes there is a delay) by the previous president.
+So, incoming presidents could be stuck with the previous president's budget until the end of the fiscal year in Sept, several months into their term. And even then the affect on the debt is not immediately felt.
+
+This is just speculation, but we've got some interesting trends in our data, that justifies further investigation. 
+
+## Wrap up
+Our project tries to cover the different phases of data analysis: Data ingestion, Data manipulation, Data visualization, Data modeling, Publishing.
+Data Science is a growing field which allows businesses and researchers to study and utilize the enormous amounts of data available on the web. This write-up relies heavily on the instruction provided by my UMD Data Science class, highlighting ideas that we have covered in class.
+
+"the ability to understand that data and extract value from it.” - Hal Varian  
+
+citations to follow in a separate posting (sorry, running out of time)
