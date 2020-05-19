@@ -80,6 +80,20 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
+## Data
+Almost ready to get some data, first let's define our goal. 
+
+Current news is dominated by coronavirus pandemic. With the limits on social interaction, business closures, and sheltering-in-place guidelines, it's a given that the economy is going to take a big hit. Congress has approved several much needed economic stimulus packages: coronavirus preparedness March 5th, 104 billion families first, March 18th, 2 trillion CARES Act March 27th, 484 billion covid-19 relief package April 24th, and now working on a 3 trillion HEROES Act. Even before the pandemic, many news outlets were highlighting the ballooning national debt. While these relief packages are sorely needed now, what will happens later? For those voters that are fiscally conservative, is there a political party that will be able to shrink this massive number once a covid-19 vaccine is available and the economy recovers.  
+
+Let's look at historical data to help us answer this question. Let's evaluate the US public debt in relation to the political party of the president.
+
+Now that our objective is defined, let's look for data.
+
+Plugging "national debt" into your preferred search engine, will return many helpful sources (kaggle.com and data.world is also a place to look for datasets).
+ 
+Data can be obtained in many different formats on the web. Sometimes it's available as a downloadable file such as a .csv, or excel file. Sometimes it's a webpage that needs to be "scrapped" for pertinent data. 
+
+Once the data is downloaded. We'll need to clean it up. We may want to remove unnecessary columns, rename columns, reformat columns, change the datatype of certain columns (data and factor fields are especially of concern). https://www.superdatascience.com/blogs/wrangling-data-r-python and https://r4ds.had.co.nz/index.html could provide detailed guidance on the data cleaning also known as data wrangling.
 ## US National Debt
 
 Data can be obtained from websites as downloadable data files in various formats such as csv, json, and exe.
@@ -116,10 +130,12 @@ debtDf %>%
          y = "Debt in millions", title="US Public Debt from 1969 - 2019")
 ```
 
-We'll change the column names
+We'll modify the date to only show the year and change the column names
 
 ```{r rename}
-debtDf<-rename(debtDf, date = DATE, debt = GFDEBTN )
+debtDf<-rename(debtDf, year = DATE, debt = GFDEBTN )
+debtDf$year = lubridate::year(debtDf$year)
+
 debtDf
 ```
 
@@ -127,10 +143,58 @@ And re-display the graph in billions.
 
 ```{r new_graph}
 debtDf %>%   
-  ggplot(aes(x=date, y=debt/1000)) +
+  ggplot(aes(x=year, y=debt/1000)) +
     geom_line() +
     labs(x = "Year",
          y = "Debt in billions", title="US Public Debt from 1969 - 2019")
 ```
 
-Now we need to grab the congressional data.
+Now we need to grab the presidental data from data.world
+
+```{r}
+presDf <- read_csv("by_date.csv")[,-4]
+head(presDf)
+```
+
+```{r}
+debtDf <- left_join(debtDf, presDf, by = "year")
+debtDf
+```
+
+```{r}
+debtDf %>%   
+  ggplot(aes(x=year, y=debt/1000, color=party)) +
+    geom_point() +
+    labs(x = "Year",
+         y = "Debt in billions", title="US Public Debt from 1969 - 2019")
+```
+
+Now let's see how the debt changes from year to year as a percentage.
+
+```{r change_in_percent}
+pctDf <- debtDf%>%
+    group_by(party) %>%
+    arrange(year) %>%
+    mutate(pctChg = 100 * (debt - lag(debt))/lag(debt))
+
+pctDf %>%   
+  ggplot(aes(x=year, y=pctChg, color=party)) +
+    geom_point() +
+    labs(x = "Year",
+         y = "Percentage of Annual Change", title="US Public Debt from 1969 - 2019")
+pctDf
+```
+
+Now this is showing an interesting pattern. The percent change is pretty steady for most years, but notice the large spikes in the first year of a change over from one party to another.
+
+Spikes:
+1981, when a republican president came into power.
+1993, when a democrat came in
+2001, when a republican came in
+2009,  when a democrat came in
+2017, when a republican came in
+
+This could be related to the fact that when a new president is elected, they move into the White House in Jan, but the budget for the coming nine months is already "approved" (sometimes there is a delay) by the previous president.
+
+This is just speculation, but we've got some interesting trends in our data, that justifies further investigation.
+
